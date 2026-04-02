@@ -1,0 +1,174 @@
+.food-page {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.food-hero {
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+  color: white;
+  padding: 100px 20px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.food-hero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  font-family: 'Playfair Display', serif;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.food-hero p {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.9;
+}
+
+/* Filter Bar */
+.food-filter-container {
+  max-width: 1200px;
+  margin: -80px auto 40px;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  position: relative;
+  z-index: 10;
+}
+
+.food-filter-group {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.food-filter-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a4a4a;
+}
+
+.food-filter-input {
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #fcfcfc;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.food-filter-input:focus {
+  border-color: #1A7A4A;
+  box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.1);
+  background-color: white;
+}
+
+.food-btn-clear-all {
+  padding: 12px 24px;
+  background: transparent;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 46px;
+}
+
+.food-btn-clear-all:hover {
+  background: #fffafa;
+  border-color: #c62828;
+}
+
+/* Category Pills */
+.food-category-pills {
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 10px 20px;
+  /* hide scrollbar */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.food-category-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.food-category-pill {
+  padding: 10px 24px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.food-category-pill:hover {
+  border-color: #1A7A4A;
+  color: #1A7A4A;
+  transform: translateY(-1px);
+}
+
+.food-category-pill.active {
+  background: #1A7A4A;
+  color: white;
+  border-color: #1A7A4A;
+  box-shadow: 0 4px 10px rgba(26, 122, 74, 0.2);
+}
+
+/* Grid Layout */
+.food-grid {
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  padding: 0 20px;
+}
+
+.food-no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  color: #666;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.03);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .food-filter-container {
+    margin: -40px 20px 30px;
+    padding: 15px;
+  }
+  .food-hero {
+    padding: 60px 20px 80px;
+  }
+  .food-hero h1 {
+    font-size: 2.5rem;
+  }
+  .food-grid {
+    grid-template-columns: 1fr;
+  }
+}

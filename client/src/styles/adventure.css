@@ -1,0 +1,192 @@
+.adventure-page {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #f7f9f6; /* Very light earthy gray/green */
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.adventure-hero {
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1522199755839-a2bacb67c546?q=80&w=2072&auto=format&fit=crop') center/cover no-repeat;
+  color: white;
+  padding: 110px 20px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.adventure-hero h1 {
+  font-size: 3.8rem;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
+  font-family: 'DM Sans', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 4px 6px rgba(0,0,0,0.6);
+}
+
+.adventure-hero p {
+  font-size: 1.3rem;
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0.95;
+  font-weight: 400;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+/* Filter Bar */
+.adventure-filter-container {
+  max-width: 1200px;
+  margin: -70px auto 40px;
+  background: white;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  position: relative;
+  z-index: 10;
+  border-top: 5px solid #e67e22; /* Energetic Orange */
+}
+
+.adventure-filter-group {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.adventure-filter-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #3e4444;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.adventure-filter-input {
+  padding: 14px 16px;
+  border: 2px solid #edeff0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2c3e50;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.adventure-filter-input:focus {
+  border-color: #e67e22;
+  box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.15);
+  background-color: white;
+}
+
+.adventure-btn-clear-all {
+  padding: 14px 28px;
+  background: transparent;
+  color: #c0392b;
+  border: 2px solid #c0392b;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 52px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.adventure-btn-clear-all:hover {
+  background: #c0392b;
+  color: white;
+}
+
+/* Category Pills */
+.adventure-category-pills {
+  max-width: 1200px;
+  margin: 0 auto 35px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 10px 20px;
+  /* hide scrollbar */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.adventure-category-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.adventure-category-pill {
+  padding: 12px 28px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #718096;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.adventure-category-pill:hover {
+  border-color: #e67e22;
+  color: #e67e22;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(230, 126, 34, 0.15);
+}
+
+.adventure-category-pill.active {
+  background: #e67e22;
+  color: white;
+  border-color: #e67e22;
+  box-shadow: 0 8px 20px rgba(230, 126, 34, 0.3);
+}
+
+/* Grid Layout */
+.adventure-grid {
+  max-width: 1200px;
+  margin: 0 auto 70px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 35px;
+  padding: 0 20px;
+}
+
+.adventure-no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 12px;
+  color: #2d3748;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  border: 2px dashed #cbd5e0;
+}
+
+.adventure-no-results p {
+  color: #a0aec0;
+  font-weight: 500;
+  margin-top: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .adventure-filter-container {
+    margin: -40px 20px 30px;
+    padding: 20px;
+  }
+  .adventure-hero {
+    padding: 80px 20px 100px;
+  }
+  .adventure-hero h1 {
+    font-size: 2.8rem;
+  }
+  .adventure-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,64 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Hotel from "./pages/Hotel";
+import Food from "./pages/Food";
+import Spa from "./pages/Spa";
+import Adventure from "./pages/Adventure";
+import Home from "./pages/Home";
+import MerchantSignup from "./pages/MerchantSignup";
+import CustomerDashboard from "./pages/CustomerDashboard";
+import MerchantDashboard from "./pages/MerchantDashboard";
+import AdminLayout from "./components/AdminLayout";
+import AdminOverview from "./pages/AdminOverview";
+import AdminSettings from "./pages/AdminSettings";
+import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminDealManagement from "./pages/AdminDealManagement";
+import AdminBusinessManagement from "./pages/AdminBusinessManagement";
+
+import AdminLogin from "./pages/AdminLogin";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/merchant-register" element={<MerchantSignup />} />
+        <Route path="/dashboard" element={<CustomerDashboard />} />
+        <Route path="/merchant-dashboard" element={<MerchantDashboard />} />
+        <Route path="/hotels" element={<Hotel />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/food" element={<Food />} />
+        <Route path="/spa" element={<Spa />} />
+        <Route path="/adventure" element={<Adventure />} />
+
+        {/* Admin Public Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Protected Admin Routes */}
+        <Route path="/admin/*" element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <Routes>
+                <Route path="overview" element={<AdminOverview />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="users" element={<AdminUserManagement />} />
+                <Route path="deals" element={<AdminDealManagement />} />
+                <Route path="businesses" element={<AdminBusinessManagement />} />
+                <Route path="*" element={<AdminOverview />} />
+              </Routes>
+            </AdminLayout>
+          </ProtectedRoute>
+        } />
+
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

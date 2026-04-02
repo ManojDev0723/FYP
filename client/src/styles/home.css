@@ -1,0 +1,123 @@
+.home-page {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+/* Home Header / Tiny Hero */
+.home-header {
+  background: linear-gradient(135deg, #1A7A4A 0%, #115733 100%);
+  color: white;
+  padding: 60px 20px 80px;
+  text-align: center;
+}
+
+.home-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+
+.home-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Content Container */
+.home-content {
+  max-width: 1200px;
+  margin: -40px auto 60px;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+/* Section Styling */
+.home-section {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.home-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 16px;
+}
+
+.home-section-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.home-section-header .section-icon {
+  font-size: 1.8rem;
+}
+
+.home-section-action {
+  font-size: 0.95rem;
+  color: #1A7A4A;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.home-section-action:hover {
+  color: #115733;
+}
+
+/* Horizontal Carousel */
+.home-carousel-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 24px;
+  padding: 10px 4px 30px;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none; /* IE / Edge */
+  scrollbar-width: none; /* Firefox */
+  scroll-behavior: smooth;
+}
+
+.home-carousel-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome/Safari/Webkit */
+}
+
+/* We force the DealCard and its wrapper to maintain a fixed width for the scroll */
+.home-carousel-item {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: 320px; 
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .home-header h1 {
+    font-size: 2.2rem;
+  }
+  .home-content {
+    margin-top: -20px;
+  }
+  .home-section {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+  .home-carousel-item {
+    width: 280px; 
+  }
+  .home-carousel-container {
+    gap: 16px;
+  }
+}

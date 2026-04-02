@@ -1,0 +1,26 @@
+[
+  {
+    "Tables_in_dealhub": "admin"
+  },
+  {
+    "Tables_in_dealhub": "business"
+  },
+  {
+    "Tables_in_dealhub": "categories"
+  },
+  {
+    "Tables_in_dealhub": "coupons"
+  },
+  {
+    "Tables_in_dealhub": "deals"
+  },
+  {
+    "Tables_in_dealhub": "purchases"
+  },
+  {
+    "Tables_in_dealhub": "reviews"
+  },
+  {
+    "Tables_in_dealhub": "users"
+  }
+]

@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --groupon-green: #53a318;
+  --groupon-green-hover: #468c13;
+  --dealhub-text: #333;
+  --dealhub-text-light: #757575;
+  --dealhub-bg: #f8f9fa;
+  --dealhub-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --dealhub-border: #e0e0e0;
+}
+
+.deal-management-container {
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+  color: var(--dealhub-text);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.deal-management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.deal-management-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+.btn-add-deal {
+  background-color: var(--groupon-green);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(83, 163, 24, 0.3);
+}
+
+.btn-add-deal:hover {
+  background-color: var(--groupon-green-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(83, 163, 24, 0.4);
+}
+
+/* Deals Grid */
+.deals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.deal-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--dealhub-card-shadow);
+  border: 1px solid var(--dealhub-border);
+  transition: transform 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.deal-card:hover {
+  transform: translateY(-5px);
+}
+
+.deal-image-wrapper {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.deal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 0.5s ease;
+}
+
+.deal-card:hover .deal-image {
+  scale: 1.05;
+}
+
+.deal-status-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-inactive {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.status-expired {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.deal-content {
+  padding: 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.deal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #222;
+  line-height: 1.4;
+}
+
+.deal-description {
+  font-size: 14px;
+  color: var(--dealhub-text-light);
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.deal-pricing {
+  margin-top: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.discount-price {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--groupon-green);
+}
+
+.original-price {
+  font-size: 16px;
+  text-decoration: line-through;
+  color: var(--dealhub-text-light);
+}
+
+.discount-percent {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d32f2f;
+  background: #ffecb3;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.deal-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--dealhub-text-light);
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.deal-actions {
+  display: flex;
+  padding: 12px 16px;
+  background: #fcfcfc;
+  border-top: 1px solid #eee;
+  gap: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid var(--dealhub-border);
+  border-radius: 6px;
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.action-btn:hover {
+  background: #f5f5f5;
+}
+
+.btn-edit:hover {
+  color: #1976d2;
+  border-color: #1976d2;
+}
+
+.btn-pause:hover {
+  color: #ef6c00;
+  border-color: #ef6c00;
+}
+
+.btn-delete:hover {
+  color: #d32f2f;
+  border-color: #d32f2f;
+}
+
+/* Empty State */
+.empty-deals {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--dealhub-card-shadow);
+}
+
+.empty-deals i {
+  font-size: 64px;
+  color: var(--dealhub-border);
+  margin-bottom: 20px;
+}
+
+.empty-deals p {
+  font-size: 18px;
+  color: var(--dealhub-text-light);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .deal-management-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .btn-add-deal {
+    width: 100%;
+  }
+}

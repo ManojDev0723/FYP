@@ -1,0 +1,273 @@
+.review-mgmt-container {
+  padding: 24px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+}
+
+.review-mgmt-header {
+  margin-bottom: 30px;
+}
+
+.review-mgmt-header h1 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.review-mgmt-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+/* Ratings Overview Section */
+.ratings-summary-section {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 40px;
+}
+
+.average-rating-card {
+  text-align: center;
+  border-right: 1px solid #eee;
+  padding-right: 40px;
+}
+
+.rating-score {
+  font-size: 64px;
+  font-weight: 800;
+  color: #333;
+  display: block;
+  line-height: 1;
+}
+
+.rating-stars {
+  color: #ffc107;
+  font-size: 24px;
+  margin: 15px 0;
+}
+
+.total-reviews-count {
+  color: #888;
+  font-size: 14px;
+}
+
+.rating-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dist-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.bar-label {
+  min-width: 60px;
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.bar-container {
+  flex-grow: 1;
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background-color: #53a318; /* Groupon-style green */
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.bar-value {
+  min-width: 40px;
+  text-align: right;
+  font-size: 13px;
+  color: #888;
+}
+
+/* Review List Section */
+.review-list-header {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.review-list-header h2 {
+  font-size: 20px;
+  color: #333;
+}
+
+.reviews-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.review-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f0f0f0;
+  transition: transform 0.2s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.review-card-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.review-user-info h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.review-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.review-rating-stars {
+  color: #ffc107;
+  font-size: 14px;
+}
+
+.review-deal-tag {
+  display: inline-block;
+  background-color: #eef7e8;
+  color: #53a318;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.review-content {
+  color: #555;
+  line-height: 1.6;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+/* Merchant Reply Section */
+.merchant-reply-area {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed #eee;
+}
+
+.reply-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #53a318;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reply-text {
+  font-style: italic;
+  color: #666;
+  background: #fbfbfb;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 3px solid #53a318;
+  font-size: 14px;
+}
+
+.reply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reply-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.reply-form textarea:focus {
+  outline: none;
+  border-color: #53a318;
+}
+
+.reply-submit-btn {
+  align-self: flex-end;
+  background-color: #53a318;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.reply-submit-btn:hover {
+  background-color: #438214;
+}
+
+.reply-submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.toggle-reply-btn {
+  background: none;
+  border: 1px solid #53a318;
+  color: #53a318;
+  padding: 6px 15px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-reply-btn:hover {
+  background-color: #53a318;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .ratings-summary-section {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .average-rating-card {
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+  }
+}
