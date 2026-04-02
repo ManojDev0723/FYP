@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/hotel.css";
 
+import Pagination from "../components/Pagination";
+
 const Hotel = () => {
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,18 +15,20 @@ const Hotel = () => {
   const [priceFilter, setPriceFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
   const [sortBy, setSortBy] = useState("highest-discount");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 16;
 
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/deals");
+        const response = await fetch("/api/deals");
         if (!response.ok) {
           throw new Error("Failed to fetch hotel deals");
         }
         const data = await response.json();
 
         const hotelDeals = data
-          .filter(deal => deal.category_name && deal.category_name.toLowerCase() === 'hotel')
+          .filter(deal => deal.category_name && deal.category_name.toLowerCase().includes('hotel'))
           .map(deal => ({
             id: deal.dealid,
             name: deal.title,
@@ -34,7 +38,7 @@ const Hotel = () => {
             discountPrice: Number(deal.discountprice) || 0,
             image: deal.imageurl && deal.imageurl.startsWith('http')
               ? deal.imageurl
-              : deal.imageurl ? `http://localhost:5000${deal.imageurl}` : "https://images.unsplash.com/photo-1566073771259-6a8506099945"
+              : deal.imageurl ? `/uploads${deal.imageurl}` : "https://images.unsplash.com/photo-1566073771259-6a8506099945"
           }));
 
         setHotels(hotelDeals);
@@ -91,6 +95,19 @@ const Hotel = () => {
 
     return result;
   }, [hotels, searchTerm, priceFilter, ratingFilter, sortBy]);
+
+  // Reset to first page when filtering or sorting
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, priceFilter, ratingFilter, sortBy]);
+
+  // Paginated data logic
+  const totalItems = filteredHotels.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const currentItems = filteredHotels.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const clearAllFilters = () => {
     setSearchTerm("");
@@ -162,8 +179,8 @@ const Hotel = () => {
           <div className="loading-message">Loading hotels...</div>
         ) : error ? (
           <div className="error-message">{error}</div>
-        ) : filteredHotels.length > 0 ? (
-          filteredHotels.map((hotel) => (
+        ) : currentItems.length > 0 ? (
+          currentItems.map((hotel) => (
             <HotelCard key={hotel.id} hotel={hotel} />
           ))
         ) : (
@@ -172,6 +189,15 @@ const Hotel = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination Component */}
+      {!loading && !error && currentItems.length > 0 && (
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
 
       <Footer />
     </div>

@@ -1,122 +1,107 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import DealCard from "../components/DealCard";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/adventure.css";
 
-const adventureData = [
-  {
-    id: 301,
-    name: "Everest Base Camp Helicopter Tour",
-    location: "Kathmandu Valley",
-    rating: 4.9,
-    originalPrice: 1200,
-    discountPrice: 850,
-    category: "Air",
-    image: "https://images.unsplash.com/photo-1544971587-b842c27f8e14?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 302,
-    name: "Trishuli River White Water Rafting",
-    location: "Trishuli River",
-    rating: 4.7,
-    originalPrice: 60,
-    discountPrice: 35,
-    category: "Water Sports",
-    image: "https://images.unsplash.com/photo-1533503254580-5a3d4f40d7c7?q=80&w=1974&auto=format&fit=crop",
-  },
-  {
-    id: 303,
-    name: "Tandem Skydiving Thrill",
-    location: "Pokhara",
-    rating: 4.9,
-    originalPrice: 300,
-    discountPrice: 220,
-    category: "Air",
-    image: "https://images.unsplash.com/photo-1520697967919-614532a2f8b5?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 304,
-    name: "3-Day Annapurna Base Camp Trek setup",
-    location: "Annapurna Region",
-    rating: 4.8,
-    originalPrice: 250,
-    discountPrice: 160,
-    category: "Trekking",
-    image: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?q=80&w=2076&auto=format&fit=crop",
-  },
-  {
-    id: 305,
-    name: "Bungee Jumping Weekend Pass",
-    location: "Bhote Koshi",
-    rating: 4.6,
-    originalPrice: 90,
-    discountPrice: 65,
-    category: "Extreme",
-    image: "https://images.unsplash.com/photo-1571216503943-30588147d2f9?q=80&w=2071&auto=format&fit=crop",
-  },
-  {
-    id: 306,
-    name: "Guided Jungle Safari",
-    location: "Chitwan National Park",
-    rating: 4.7,
-    originalPrice: 150,
-    discountPrice: 95,
-    category: "Nature Safari",
-    image: "https://images.unsplash.com/photo-1552554625-7ec5fb58d207?q=80&w=2071&auto=format&fit=crop",
-  }
-];
-
-const categories = ["All", "Trekking", "Water Sports", "Air", "Extreme", "Nature Safari"];
+import Pagination from "../components/Pagination";
 
 const Adventure = () => {
+  const [adventureDeals, setAdventureDeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [priceFilter, setPriceFilter] = useState("all");
   const [sortBy, setSortBy] = useState("highest-discount");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 16;
+
+  useEffect(() => {
+    const fetchAdventureDeals = async () => {
+      try {
+        const response = await fetch("/api/deals");
+        if (!response.ok) {
+          throw new Error("Failed to fetch adventure deals");
+        }
+        const data = await response.json();
+        const filtered = data.filter(deal => 
+          deal.category_name && (
+            deal.category_name.toLowerCase().includes('adventure') || 
+            deal.category_name.toLowerCase().includes('trek')
+          )
+        );
+        setAdventureDeals(filtered);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching adventure deals:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+    fetchAdventureDeals();
+  }, []);
 
   const filteredDeals = useMemo(() => {
-    let result = [...adventureData];
-
-    // Category filter
-    if (activeCategory !== "All") {
-      result = result.filter(d => d.category === activeCategory);
-    }
+    let result = [...adventureDeals];
 
     // Search filter
     if (searchTerm) {
       result = result.filter(d => 
-        d.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        d.location.toLowerCase().includes(searchTerm.toLowerCase())
+        (d.title || d.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
+        (d.business_name || d.location || "").toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Price filter
     if (priceFilter !== "all") {
+      const price = (d) => Number(d.discountprice || d.discountPrice || 0);
       if (priceFilter === "under-100") {
-        result = result.filter(d => d.discountPrice < 100);
+        result = result.filter(d => price(d) < 100);
       } else if (priceFilter === "100-300") {
-        result = result.filter(d => d.discountPrice >= 100 && d.discountPrice <= 300);
+        result = result.filter(d => price(d) >= 100 && price(d) <= 300);
       } else if (priceFilter === "above-300") {
-        result = result.filter(d => d.discountPrice > 300);
+        result = result.filter(d => price(d) > 300);
       }
     }
 
     // Sorting logic
     if (sortBy === "highest-discount") {
       result.sort((a, b) => {
-        const discA = (a.originalPrice - a.discountPrice) / a.originalPrice;
-        const discB = (b.originalPrice - b.discountPrice) / b.originalPrice;
+        const opA = Number(a.originalprice || a.originalPrice || 1);
+        const dpA = Number(a.discountprice || a.discountPrice || 0);
+        const opB = Number(b.originalprice || b.originalPrice || 1);
+        const dpB = Number(b.discountprice || b.discountPrice || 0);
+        const discA = (opA - dpA) / opA;
+        const discB = (opB - dpB) / opB;
         return discB - discA;
       });
     } else if (sortBy === "lowest-price") {
-      result.sort((a, b) => a.discountPrice - b.discountPrice);
+      result.sort((a, b) => {
+        const dpA = Number(a.discountprice || a.discountPrice || 0);
+        const dpB = Number(b.discountprice || b.discountPrice || 0);
+        return dpA - dpB;
+      });
     } else if (sortBy === "top-rated") {
-      result.sort((a, b) => b.rating - a.rating);
+      result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     }
 
     return result;
-  }, [searchTerm, priceFilter, sortBy, activeCategory]);
+  }, [adventureDeals, searchTerm, priceFilter, sortBy]);
+
+  // Reset to first page when filtering or sorting
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, priceFilter, sortBy]);
+
+  // Paginated data logic
+  const totalItems = filteredDeals.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const currentItems = filteredDeals.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const clearAllFilters = () => {
     setSearchTerm("");
@@ -174,24 +159,15 @@ const Adventure = () => {
         )}
       </div>
 
-      {/* Category Pills */}
-      <div className="adventure-category-pills">
-        {categories.map(cat => (
-          <button 
-            key={cat} 
-            className={`adventure-category-pill ${activeCategory === cat ? 'active' : ''}`}
-            onClick={() => setActiveCategory(cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
       {/* Adventure Cards Grid */}
       <div className="adventure-grid">
-        {filteredDeals.length > 0 ? (
-          filteredDeals.map((deal) => (
-            <DealCard key={deal.id} deal={deal} />
+        {loading ? (
+          <div className="adventure-loading">Adventurers loading...</div>
+        ) : error ? (
+          <div className="adventure-error">{error}</div>
+        ) : currentItems.length > 0 ? (
+          currentItems.map((deal) => (
+            <DealCard key={deal.dealid || deal.id} deal={deal} />
           ))
         ) : (
           <div className="adventure-no-results">
@@ -200,6 +176,15 @@ const Adventure = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination Component */}
+      {!loading && !error && currentItems.length > 0 && (
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
 
       <Footer />
     </div>

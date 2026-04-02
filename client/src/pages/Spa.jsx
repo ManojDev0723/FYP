@@ -1,122 +1,108 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import DealCard from "../components/DealCard";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/spa.css";
 
-const spaData = [
-  {
-    id: 201,
-    name: "90-Min Swedish Massage with Aroma",
-    location: "Zen Wellness Center",
-    rating: 4.9,
-    originalPrice: 110,
-    discountPrice: 65,
-    category: "Massage",
-    image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 202,
-    name: "Full Body Ayurvedic Detox",
-    location: "Lotus Spa Retreat",
-    rating: 4.7,
-    originalPrice: 150,
-    discountPrice: 85,
-    category: "Ayurveda",
-    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 203,
-    name: "Couples Infrared Sauna Session",
-    location: "Urban Sweat Studio",
-    rating: 4.8,
-    originalPrice: 75,
-    discountPrice: 45,
-    category: "Sauna",
-    image: "https://images.unsplash.com/photo-1596178056346-63eef12a03d1?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 204,
-    name: "Premium Gel Manicure & Pedicure",
-    location: "Glow Beauty Bar",
-    rating: 4.6,
-    originalPrice: 60,
-    discountPrice: 35,
-    category: "Beauty & Salon",
-    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=2069&auto=format&fit=crop",
-  },
-  {
-    id: 205,
-    name: "Deep Tissue Muscle Therapy (60-Min)",
-    location: "Healing Hands",
-    rating: 4.9,
-    originalPrice: 95,
-    discountPrice: 55,
-    category: "Massage",
-    image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    id: 206,
-    name: "Rejuvenating Facial Treatment",
-    location: "Derma Care Clinic",
-    rating: 4.8,
-    originalPrice: 130,
-    discountPrice: 70,
-    category: "Beauty & Salon",
-    image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=2070&auto=format&fit=crop",
-  }
-];
-
-const categories = ["All", "Massage", "Ayurveda", "Sauna", "Beauty & Salon"];
+import Pagination from "../components/Pagination";
 
 const Spa = () => {
+  const [spaDeals, setSpaDeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [priceFilter, setPriceFilter] = useState("all");
   const [sortBy, setSortBy] = useState("highest-discount");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 16;
+
+  useEffect(() => {
+    const fetchSpaDeals = async () => {
+      try {
+        const response = await fetch("/api/deals");
+        if (!response.ok) {
+          throw new Error("Failed to fetch spa deals");
+        }
+        const data = await response.json();
+        // Matching 'spa' or 'wellness'
+        const filtered = data.filter(deal => 
+          deal.category_name && (
+            deal.category_name.toLowerCase().includes('spa') || 
+            deal.category_name.toLowerCase().includes('wellness')
+          )
+        );
+        setSpaDeals(filtered);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching spa deals:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+    fetchSpaDeals();
+  }, []);
 
   const filteredDeals = useMemo(() => {
-    let result = [...spaData];
-
-    // Category filter
-    if (activeCategory !== "All") {
-      result = result.filter(d => d.category === activeCategory);
-    }
+    let result = [...spaDeals];
 
     // Search filter
     if (searchTerm) {
       result = result.filter(d => 
-        d.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        d.location.toLowerCase().includes(searchTerm.toLowerCase())
+        (d.title || d.name || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
+        (d.business_name || d.location || "").toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Price filter
     if (priceFilter !== "all") {
+      const price = (d) => Number(d.discountprice || d.discountPrice || 0);
       if (priceFilter === "under-50") {
-        result = result.filter(d => d.discountPrice < 50);
+        result = result.filter(d => price(d) < 50);
       } else if (priceFilter === "50-100") {
-        result = result.filter(d => d.discountPrice >= 50 && d.discountPrice <= 100);
+        result = result.filter(d => price(d) >= 50 && price(d) <= 100);
       } else if (priceFilter === "above-100") {
-        result = result.filter(d => d.discountPrice > 100);
+        result = result.filter(d => price(d) > 100);
       }
     }
 
     // Sorting logic
     if (sortBy === "highest-discount") {
       result.sort((a, b) => {
-        const discA = (a.originalPrice - a.discountPrice) / a.originalPrice;
-        const discB = (b.originalPrice - b.discountPrice) / b.originalPrice;
+        const opA = Number(a.originalprice || a.originalPrice || 1);
+        const dpA = Number(a.discountprice || a.discountPrice || 0);
+        const opB = Number(b.originalprice || b.originalPrice || 1);
+        const dpB = Number(b.discountprice || b.discountPrice || 0);
+        const discA = (opA - dpA) / opA;
+        const discB = (opB - dpB) / opB;
         return discB - discA;
       });
     } else if (sortBy === "lowest-price") {
-      result.sort((a, b) => a.discountPrice - b.discountPrice);
+      result.sort((a, b) => {
+        const dpA = Number(a.discountprice || a.discountPrice || 0);
+        const dpB = Number(b.discountprice || b.discountPrice || 0);
+        return dpA - dpB;
+      });
     } else if (sortBy === "top-rated") {
-      result.sort((a, b) => b.rating - a.rating);
+      result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     }
 
     return result;
-  }, [searchTerm, priceFilter, sortBy, activeCategory]);
+  }, [spaDeals, searchTerm, priceFilter, sortBy]);
+
+  // Reset to first page when filtering or sorting
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, priceFilter, sortBy]);
+
+  // Paginated data logic
+  const totalItems = filteredDeals.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const currentItems = filteredDeals.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const clearAllFilters = () => {
     setSearchTerm("");
@@ -174,24 +160,15 @@ const Spa = () => {
         )}
       </div>
 
-      {/* Category Pills */}
-      <div className="spa-category-pills">
-        {categories.map(cat => (
-          <button 
-            key={cat} 
-            className={`spa-category-pill ${activeCategory === cat ? 'active' : ''}`}
-            onClick={() => setActiveCategory(cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
       {/* Spa Cards Grid */}
       <div className="spa-grid">
-        {filteredDeals.length > 0 ? (
-          filteredDeals.map((deal) => (
-            <DealCard key={deal.id} deal={deal} />
+        {loading ? (
+          <div className="spa-loading">Finding tranquility...</div>
+        ) : error ? (
+          <div className="spa-error">{error}</div>
+        ) : currentItems.length > 0 ? (
+          currentItems.map((deal) => (
+            <DealCard key={deal.dealid || deal.id} deal={deal} />
           ))
         ) : (
           <div className="spa-no-results">
@@ -200,6 +177,15 @@ const Spa = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination Component */}
+      {!loading && !error && currentItems.length > 0 && (
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
 
       <Footer />
     </div>
