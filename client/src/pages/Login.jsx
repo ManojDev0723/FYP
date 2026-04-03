@@ -27,13 +27,16 @@ function Login() {
 
       localStorage.setItem("token", res.data.token);
       
-      const role = res.data.user?.role || res.data.role;
-      if (role) {
-        localStorage.setItem("role", role);
+      const user = res.data.user;
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("role", user.role);
+      } else if (res.data.role) {
+        localStorage.setItem("role", res.data.role);
       }
 
       alert("Login successful");
-      if (role === 'business') {
+      if (user?.role === 'business' || res.data.role === 'business') {
         navigate("/merchant-dashboard");
       } else {
         navigate("/dashboard");

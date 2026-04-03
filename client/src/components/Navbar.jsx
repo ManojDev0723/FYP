@@ -1,12 +1,50 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Hook to check authentication status
+  const useAuth = () => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      const role = localStorage.getItem('role');
+      
+      if (token) {
+        setIsLoggedIn(true);
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            setUser({
+              name: parsedUser.name || parsedUser.fullname || parsedUser.username || "User",
+              avatarUrl: parsedUser.avatar_url || parsedUser.avatarUrl || "https://ui-avatars.com/api/?name=" + (parsedUser.name || parsedUser.fullname || "U")
+            });
+          } catch (e) {
+            setUser({ name: "User", avatarUrl: "https://ui-avatars.com/api/?name=U" });
+          }
+        } else {
+          // If token exists but user data is missing, still show as logged in
+          setUser({ name: "User", avatarUrl: "https://ui-avatars.com/api/?name=U" });
+        }
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    }, []);
+
+    return { isLoggedIn, user };
+  };
+
+  const { isLoggedIn, user } = useAuth();
+  const navigate = useNavigate();
+  
   const colors = {
-    primary: '#1A7A4A',
-    primaryDark: '#155E38',
+    primary: '#1a6b3c',
+    primaryDark: '#145630',
     darkText: '#1C1C1C',
     muted: '#5A5A5A',
     border: '#E4E4DF',
@@ -16,7 +54,7 @@ export default function Navbar() {
 
   const styles = {
     nav: {
-      height: '66px',
+      height: '70px',
       position: 'sticky',
       top: 0,
       zIndex: 100,
@@ -106,7 +144,7 @@ export default function Navbar() {
     ctaButton: {
       backgroundColor: colors.primary,
       color: colors.white,
-      padding: '9px 22px',
+      padding: '10px 24px',
       borderRadius: '8px',
       fontSize: '14px',
       fontWeight: '600',
@@ -126,7 +164,7 @@ export default function Navbar() {
     mobileMenu: {
       display: isOpen ? 'flex' : 'none',
       position: 'absolute',
-      top: '66px',
+      top: '70px',
       left: 0,
       right: 0,
       backgroundColor: colors.white,
@@ -135,6 +173,24 @@ export default function Navbar() {
       padding: '24px',
       gap: '20px',
       boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+    },
+    userProfile: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      textDecoration: 'none',
+      color: colors.darkText,
+      fontWeight: '600',
+      fontSize: '14px',
+      cursor: 'pointer'
+    },
+    avatar: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      objectFit: 'cover',
+      border: `2px solid ${colors.white}`,
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
     }
   };
 
@@ -159,7 +215,7 @@ export default function Navbar() {
           border-radius: 8px;
           border: 1px solid ${colors.border};
           top: 100%;
-          left: 0;
+          right: 0;
           padding: 8px 0;
         }
         .dropdown:hover .dropdown-content {
@@ -172,6 +228,7 @@ export default function Navbar() {
           display: block;
           font-size: 14px;
           transition: background-color 0.2s;
+          cursor: pointer;
         }
         .dropdown-item:hover {
           background-color: #f8f9fa;
@@ -190,6 +247,7 @@ export default function Navbar() {
           .hamburger-btn { display: block !important; }
           .mobile-menu { display: ${isOpen ? 'flex' : 'none'} !important; }
           .get-started-btn { display: none !important; }
+          .user-desktop { display: none !important; }
         }
         
         .nav-link:hover { color: ${colors.primary} !important; }
@@ -200,7 +258,7 @@ export default function Navbar() {
       <nav style={styles.nav}>
         <div style={styles.container}>
           {/* Left: Logo */}
-          <a href="/" style={styles.logoSection}>
+          <Link to="/" style={styles.logoSection}>
             <div style={styles.logoIcon}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
@@ -209,17 +267,17 @@ export default function Navbar() {
               </svg>
             </div>
             <h1 style={styles.logoText}>Deal<span style={styles.logoHub}>Hub</span></h1>
-          </a>
+          </Link>
 
           {/* Center: Desktop Nav */}
           <div className="desktop-nav" style={styles.centerNav}>
             <Link to="/home" className="nav-link" style={styles.navLink}>Home</Link>
-            <a href="/" className="nav-link" style={styles.navLink}>Explore</a>
+            <Link to="/" className="nav-link" style={styles.navLink}>Explore</Link>
             <div className="dropdown">
               <span className="nav-link" style={{...styles.navLink, display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer'}}>
                 Categories
               </span>
-              <div className="dropdown-content">
+              <div className="dropdown-content" style={{left: 0}}>
                 <Link to="/hotels" className="dropdown-item">Hotel</Link>
                 <Link to="/spa" className="dropdown-item">Spa & Wellness</Link>
                 <Link to="/food" className="dropdown-item">Food & Drinks</Link>
@@ -232,30 +290,60 @@ export default function Navbar() {
 
           {/* Right: Action */}
           <div style={styles.navAction}>
-            <div className="nav-icons" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <button aria-label="Wishlist" style={styles.iconButton} className="nav-icon-btn">
+            <div className="nav-icons" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div 
+                onClick={() => { window.location.href = isLoggedIn ? "/dashboard" : "/login" }} 
+                aria-label="Wishlist" 
+                style={{...styles.iconButton, cursor: 'pointer', zIndex: 102}} 
+                className="nav-icon-btn"
+              >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
-              </button>
-              <button aria-label="Shopping Cart" style={styles.iconButton} className="nav-icon-btn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="9" cy="21" r="1"></circle>
-                  <circle cx="20" cy="21" r="1"></circle>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-                <span style={styles.badge}>3</span>
-              </button>
-              <button aria-label="Notifications" style={styles.iconButton} className="nav-icon-btn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                <span style={{...styles.badge, backgroundColor: colors.primary}}>1</span>
-              </button>
+              </div>
+              <div 
+                onClick={() => { window.location.href = isLoggedIn ? "/dashboard" : "/login" }} 
+                aria-label="Shopping Cart" 
+                style={{...styles.iconButton, cursor: 'pointer', zIndex: 102}} 
+                className="nav-icon-btn"
+              >
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  </svg>
+                  <span style={styles.badge}>3</span>
+                </div>
+              </div>
+              <div 
+                onClick={() => { window.location.href = isLoggedIn ? "/dashboard" : "/login" }} 
+                aria-label="Notifications" 
+                style={{...styles.iconButton, cursor: 'pointer', zIndex: 102}} 
+                className="nav-icon-btn"
+              >
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  <span style={{...styles.badge, backgroundColor: colors.primary}}>1</span>
+                </div>
+              </div>
             </div>
 
-            <Link to="/register" className="cta-btn get-started-btn" style={styles.ctaButton}>Get Started</Link>
+            {isLoggedIn ? (
+              <div 
+                onClick={() => { window.location.href = "/dashboard" }}
+                style={{...styles.userProfile, cursor: 'pointer', zIndex: 102}} 
+                className="nav-link"
+              >
+                <img src={user.avatarUrl} alt={user.name} style={styles.avatar} />
+                <span>{user.name}</span>
+              </div>
+            ) : (
+              <Link to="/login" className="cta-btn get-started-btn" style={styles.ctaButton}>Get Started</Link>
+            )}
             
             <button 
               className="hamburger-btn" 
@@ -283,8 +371,19 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         <div className="mobile-menu" style={styles.mobileMenu}>
+          {isLoggedIn && (
+            <div style={{...styles.userProfile, marginBottom: '10px'}}>
+              <Link to="/dashboard" style={{display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'inherit'}}>
+                <img src={user.avatarUrl} alt={user.name} style={styles.avatar} />
+                <div style={{display: 'flex', flexDirection: 'column'}}>
+                  <span>{user.name}</span>
+                  <span style={{fontSize: '12px', color: colors.muted, fontWeight: 'normal'}}>Dashboard</span>
+                </div>
+              </Link>
+            </div>
+          )}
           <Link to="/home" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Home</Link>
-          <a href="/" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Explore</a>
+          <Link to="/" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Explore</Link>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span className="nav-link" style={{...styles.navLink, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px'}}>
               Categories
@@ -296,10 +395,13 @@ export default function Navbar() {
               <Link to="/adventure" className="nav-link" style={{...styles.navLink, fontSize: '15px'}} onClick={() => setIsOpen(false)}>Adventures</Link>
             </div>
           </div>
-          <a href="/#features" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Features</a>
-          <a href="/#faq" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>FAQ</a>
+          <Link to="/dashboard" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Wishlist</Link>
+          <Link to="/dashboard" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Shopping Cart</Link>
+          <Link to="/dashboard" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Settings</Link>
           <hr style={{width: '100%', border: 0, borderTop: `1px solid ${colors.border}`, margin: '8px 0'}} />
-          <Link to="/register" className="cta-btn" style={{...styles.ctaButton, textAlign: 'center'}} onClick={() => setIsOpen(false)}>Get Started</Link>
+          {!isLoggedIn && (
+            <Link to="/login" className="cta-btn" style={{...styles.ctaButton, textAlign: 'center'}} onClick={() => setIsOpen(false)}>Get Started</Link>
+          )}
         </div>
       </nav>
     </>
