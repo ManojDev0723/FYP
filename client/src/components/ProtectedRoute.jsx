@@ -1,14 +1,19 @@
 import { Navigate, useLocation } from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiredRole }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const location = useLocation();
 
-  if (!token || role !== "admin") {
-    // Redirect to admin login if not authenticated or not an admin
-    // We save the current location to redirect back after login if needed
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  if (!token) {
+    // Redirect to the appropriate login page based on the required role
+    const loginPath = requiredRole === "admin" ? "/admin/login" : "/login";
+    return <Navigate to={loginPath} state={{ from: location }} replace />;
+  }
+
+  if (requiredRole && role !== requiredRole) {
+    // If a specific role is required and the user doesn't have it, redirect to Forbidden
+    return <Navigate to="/403" state={{ from: location }} replace />;
   }
 
   return children;

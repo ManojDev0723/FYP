@@ -197,3 +197,42 @@ exports.getDeals = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// @desc    Get a single deal by ID
+// @route   GET /api/deals/:id
+// @access  Public
+exports.getDealById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [deal] = await db.query(`
+      SELECT d.*, b.businessname as business_name, b.phone, b.address, c.name as category_name 
+      FROM deals d
+      JOIN business b ON d.businessid = b.businessid
+      JOIN categories c ON d.categoryid = c.categoryid
+      WHERE d.dealid = ? AND d.status = 'active'
+    `, [id]);
+
+    if (!deal || deal.length === 0) {
+      return res.status(404).json({ message: "Deal not found or inactive" });
+    }
+
+    // Get average rating for the deal
+    const [ratings] = await db.query(`
+      SELECT AVG(rating) as avgRating, COUNT(*) as reviewCount
+      FROM reviews
+      WHERE dealid = ?
+    `, [id]);
+
+    const result = {
+      ...deal[0],
+      avgRating: parseFloat(ratings[0].avgRating) || 0,
+      reviewCount: ratings[0].reviewCount || 0
+    };
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching deal by ID:", err);
+    res.status(500).json({ error: err.message });
+  }
+};

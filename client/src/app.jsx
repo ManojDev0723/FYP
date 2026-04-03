@@ -18,6 +18,10 @@ import AdminDealManagement from "./pages/AdminDealManagement";
 import AdminBusinessManagement from "./pages/AdminBusinessManagement";
 
 import AdminLogin from "./pages/AdminLogin";
+import DealDetail from "./pages/DealDetail";
+import Cart from "./pages/Cart";
+import Forbidden from "./pages/Forbidden";
+import Checkout from "./pages/Checkout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
@@ -29,20 +33,44 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/merchant-register" element={<MerchantSignup />} />
-        <Route path="/dashboard" element={<CustomerDashboard />} />
-        <Route path="/merchant-dashboard" element={<MerchantDashboard />} />
+        
+        {/* Protected Dashboard Routes */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <CustomerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/merchant-dashboard" element={
+          <ProtectedRoute requiredRole="business">
+            <MerchantDashboard />
+          </ProtectedRoute>
+        } />
+
         <Route path="/hotels" element={<Hotel />} />
         <Route path="/home" element={<Home />} />
         <Route path="/food" element={<Food />} />
         <Route path="/spa" element={<Spa />} />
         <Route path="/adventure" element={<Adventure />} />
+        <Route path="/deals/:dealId" element={<DealDetail />} />
+        <Route path="/deal/:dealId" element={<DealDetail />} />
+        <Route path="/hotel/:dealId" element={<DealDetail />} />
+        <Route path="/cart" element={<Cart />} />
+        
+        {/* Protected Checkout Route */}
+        <Route path="/checkout" element={
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/403" element={<Forbidden />} />
 
         {/* Admin Public Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* Protected Admin Routes */}
         <Route path="/admin/*" element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="admin">
             <AdminLayout>
               <Routes>
                 <Route path="overview" element={<AdminOverview />} />

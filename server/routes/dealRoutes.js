@@ -3,6 +3,7 @@ const router = express.Router();
 const { 
   getDeals, 
   getMerchantDeals, 
+  getDealById,
   createDeal, 
   updateDeal, 
   toggleDealStatus, 
@@ -24,8 +25,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Public route
+// Public routes
 router.get("/", getDeals);
+router.get("/:id", getDealById);
 
 // Upload route (protected)
 router.post("/upload", protect, upload.single("image"), (req, res) => {

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Login.css";
 
 function Login() {
@@ -11,6 +11,7 @@ function Login() {
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -36,7 +37,13 @@ function Login() {
       }
 
       alert("Login successful");
-      if (user?.role === 'business' || res.data.role === 'business') {
+      
+      // Check for redirect state
+      const origin = location.state?.from?.pathname || null;
+      
+      if (origin) {
+        navigate(origin);
+      } else if (user?.role === 'business' || res.data.role === 'business') {
         navigate("/merchant-dashboard");
       } else {
         navigate("/dashboard");

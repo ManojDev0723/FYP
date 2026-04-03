@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Store, ShieldCheck, AlertCircle } from "lucide-react";
 import "../styles/AdminDashboard.css";
 
@@ -13,6 +13,7 @@ function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -31,7 +32,14 @@ function AdminLogin() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", "admin");
 
-      navigate("/admin/overview");
+      // Check for redirect state
+      const origin = location.state?.from?.pathname || null;
+      
+      if (origin) {
+        navigate(origin);
+      } else {
+        navigate("/admin/overview");
+      }
     } catch (error) {
       setError(error.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {

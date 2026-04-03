@@ -42,7 +42,7 @@ const DealCard = ({ deal }) => {
             <del className="old-price-v2">Rs. {originalPrice}</del>
             <span className="new-price-v2">Rs. {discountPrice}</span>
           </div>
-          <Link to={`/deal/${id}`} className="btn-deal-v2" style={{ textAlign: 'center', textDecoration: 'none' }}>
+          <Link to={`/deals/${id}`} className="btn-deal-v2" style={{ textAlign: 'center', textDecoration: 'none' }}>
              Explore Deal
           </Link>
         </div>

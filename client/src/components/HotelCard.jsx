@@ -28,7 +28,7 @@ const HotelCard = ({ hotel }) => {
           <span className="discount-price">${hotel.discountPrice}</span>
         </div>
 
-        <Link to={`/hotel/${hotel.id}`} className="btn-view-deal" style={{ textAlign: 'center', textDecoration: 'none' }}>
+        <Link to={`/deals/${hotel.id}`} className="btn-view-deal" style={{ textAlign: 'center', textDecoration: 'none' }}>
            View Deal
         </Link>
       </div>

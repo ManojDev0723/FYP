@@ -41,6 +41,19 @@ export default function Navbar() {
 
   const { isLoggedIn, user } = useAuth();
   const navigate = useNavigate();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const uniqueItems = cart.length;
+      setCartCount(uniqueItems);
+    };
+
+    updateCartCount();
+    window.addEventListener("cartUpdate", updateCartCount);
+    return () => window.removeEventListener("cartUpdate", updateCartCount);
+  }, []);
   
   const colors = {
     primary: '#1a6b3c',
@@ -302,7 +315,7 @@ export default function Navbar() {
                 </svg>
               </div>
               <div 
-                onClick={() => { window.location.href = isLoggedIn ? "/dashboard" : "/login" }} 
+                onClick={() => { navigate("/cart") }} 
                 aria-label="Shopping Cart" 
                 style={{...styles.iconButton, cursor: 'pointer', zIndex: 102}} 
                 className="nav-icon-btn"
@@ -313,7 +326,7 @@ export default function Navbar() {
                     <circle cx="20" cy="21" r="1"></circle>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                   </svg>
-                  <span style={styles.badge}>3</span>
+                  {cartCount > 0 && <span style={styles.badge}>{cartCount}</span>}
                 </div>
               </div>
               <div 
@@ -396,7 +409,7 @@ export default function Navbar() {
             </div>
           </div>
           <Link to="/dashboard" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Wishlist</Link>
-          <Link to="/dashboard" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Shopping Cart</Link>
+          <Link to="/cart" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Shopping Cart {cartCount > 0 && `(${cartCount})`}</Link>
           <Link to="/dashboard" className="nav-link" style={{...styles.navLink, fontSize: '16px'}} onClick={() => setIsOpen(false)}>Settings</Link>
           <hr style={{width: '100%', border: 0, borderTop: `1px solid ${colors.border}`, margin: '8px 0'}} />
           {!isLoggedIn && (

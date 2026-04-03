@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./CustomerDashboard.css";
@@ -10,7 +10,19 @@ function CustomerDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const updateCart = () => {
+      const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      setCartItems(storedCart);
+    };
+
+    updateCart();
+    window.addEventListener("cartUpdate", updateCart);
+    return () => window.removeEventListener("cartUpdate", updateCart);
+  }, []);
 
   const handleUserChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -82,12 +94,14 @@ function CustomerDashboard() {
     { id: 3, title: "Boutique Hotel Room", price: 2700, emoji: "🏨" },
   ];
 
-  const cartItems = [
-    { id: 1, title: "Paragliding Adventure Tour", date: "Oct 24, 2026", price: 2400, emoji: "🪂" },
-    { id: 2, title: "Organic Café Brunch", date: "Oct 25, 2026", price: 600, emoji: "☕" },
-  ];
+  const handleRemoveCartItem = (dealid) => {
+    const updatedCart = cartItems.filter(item => item.dealid !== dealid);
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cartUpdate"));
+  };
 
-  const totalCartPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+  const totalCartPrice = cartItems.reduce((sum, item) => sum + (item.discountprice * item.quantity), 0);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -179,34 +193,49 @@ function CustomerDashboard() {
       case "cart":
         return (
           <div className="dashboard-form" style={{ maxWidth: '100%' }}>
-            <h2>Shopping Cart</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ margin: 0 }}>Shopping Cart</h2>
+              <Link to="/cart" style={{ color: '#16a34a', fontSize: '0.9rem', fontWeight: '600', textDecoration: 'none' }}>View Full Cart</Link>
+            </div>
             {cartItems.length > 0 ? (
               <>
                 <div className="cart-list">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="cart-item">
-                      <div className="cart-item-icon">{item.emoji}</div>
+                    <div key={item.dealid} className="cart-item">
+                      <div className="cart-item-img-container">
+                        <img 
+                          src={item.imageurl?.startsWith('http') ? item.imageurl : `/uploads${item.imageurl}`} 
+                          alt={item.title}
+                          className="cart-item-thumb"
+                          onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1506744038136-46273834b3fb" }}
+                        />
+                      </div>
                       <div className="cart-item-info">
                         <h4>{item.title}</h4>
-                        <p>Date: {item.date}</p>
+                        <p>Quantity: {item.quantity} | {item.variant || "Standard Deal"}</p>
                       </div>
-                      <div className="cart-item-price">Rs. {item.price}</div>
-                      <button className="cart-item-remove" title="Remove item">×</button>
+                      <div className="cart-item-price">${(item.discountprice * item.quantity).toFixed(2)}</div>
+                      <button 
+                        className="cart-item-remove" 
+                        title="Remove item"
+                        onClick={() => handleRemoveCartItem(item.dealid)}
+                      >×</button>
                     </div>
                   ))}
                 </div>
                 <div className="cart-summary">
                   <div className="total">
-                    <span>Total:</span>
-                    <span>Rs. {totalCartPrice}</span>
+                    <span>Subtotal:</span>
+                    <span>${totalCartPrice.toFixed(2)}</span>
                   </div>
-                  <button className="btn-checkout">Proceed to Checkout</button>
+                  <button className="btn-checkout" onClick={() => navigate("/cart")}>Proceed to Checkout</button>
                 </div>
               </>
             ) : (
               <div className="empty-state">
                 <span className="icon">🛒</span>
                 <p>Your cart is empty.</p>
+                <Link to="/home" className="btn-primary" style={{ textDecoration: 'none', marginTop: '1rem', display: 'inline-block' }}>Browse Deals</Link>
               </div>
             )}
           </div>
