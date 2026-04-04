@@ -17,12 +17,16 @@ const authRoutes = require("./routes/authRoutes");
 const merchantRoutes = require("./routes/merchantRoutes");
 const dealRoutes = require("./routes/dealRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const khaltiRoutes = require("./routes/khalti");
 
 
 app.use("/api/auth", authRoutes);
 app.use("/api/merchants", merchantRoutes);
 app.use("/api/deals", dealRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/khalti", khaltiRoutes);
 
 
 // Test database connection

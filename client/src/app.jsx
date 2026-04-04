@@ -22,6 +22,8 @@ import DealDetail from "./pages/DealDetail";
 import Cart from "./pages/Cart";
 import Forbidden from "./pages/Forbidden";
 import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
@@ -64,6 +66,8 @@ function App() {
         } />
 
         <Route path="/403" element={<Forbidden />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
 
         {/* Admin Public Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />

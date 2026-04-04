@@ -1,0 +1,186 @@
+const express = require("express");
+const axios = require("axios");
+const db = require("../config/db");
+const router = express.Router();
+
+const KHALTI_API = "https://dev.khalti.com/api/v2/epayment";
+const SECRET_KEY = process.env.KHALTI_SECRET_KEY;
+const BASE_URL = process.env.BASE_URL;
+const CLIENT_URL = process.env.CLIENT_URL;
+
+const buildKhaltiHeaders = () => ({
+  Authorization: `Key ${SECRET_KEY}`,
+  "Content-Type": "application/json",
+});
+
+const ensureEnv = () => {
+  if (!SECRET_KEY || !BASE_URL || !CLIENT_URL) {
+    throw new Error("KHALTI_SECRET_KEY, BASE_URL, and CLIENT_URL must be set in .env");
+  }
+};
+
+// ─────────────────────────────────────────
+// STEP 1: Initiate Payment
+// ─────────────────────────────────────────
+router.post("/initiate", async (req, res) => {
+  try {
+    ensureEnv();
+
+    const { orderId, orderName, name, email, phone } = req.body;
+
+    if (!orderId || !name || !email || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: "orderId, name, email, and phone are required.",
+      });
+    }
+
+    // ✅ Recalculate amount from DB — never trust frontend
+    const [purchases] = await db.query(
+      "SELECT purchaseid, totalamount FROM purchases WHERE purchaseid = ?",
+      [orderId]
+    );
+
+    if (purchases.length === 0) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    const purchase = purchases[0];
+    const totalAmount = Number(purchase.totalamount);
+
+    if (Number.isNaN(totalAmount) || totalAmount <= 0) {
+      return res.status(400).json({ success: false, message: "Invalid order amount." });
+    }
+
+    const response = await axios.post(
+      `${KHALTI_API}/initiate/`,
+      {
+        // ✅ return_url must point to BACKEND — Khalti will send pidx here
+        return_url: `${BASE_URL}/api/khalti/verify`,
+        website_url: CLIENT_URL,
+        amount: Math.round(totalAmount * 100), // Rs to paisa
+        purchase_order_id: String(orderId),
+        purchase_order_name: orderName || `DealHub Order #${orderId}`,
+        customer_info: { name, email, phone },
+      },
+      { headers: buildKhaltiHeaders() }
+    );
+
+    return res.json({
+      success: true,
+      payment_url: response.data.payment_url,
+      pidx: response.data.pidx,
+    });
+
+  } catch (error) {
+    const payload = error?.response?.data || error.message;
+    console.error("Khalti initiate error:", payload);
+    return res.status(error?.response?.status || 500).json({
+      success: false,
+      message: payload,
+    });
+  }
+});
+
+// ─────────────────────────────────────────
+// STEP 2: Verify Payment (Khalti Callback)
+// ─────────────────────────────────────────
+router.get("/verify", async (req, res) => {
+  try {
+    ensureEnv();
+
+    // ✅ FIX: Read BOTH pidx AND purchase_order_id from req.query
+    // Khalti sends these automatically in the return_url callback
+    const { pidx, purchase_order_id } = req.query;
+
+    console.log("Khalti callback received:", req.query); // helpful for debugging
+
+    if (!pidx) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing pidx in callback.",
+      });
+    }
+
+    if (!purchase_order_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing purchase_order_id in callback.",
+      });
+    }
+
+    // ✅ Call Khalti Lookup API to verify payment status
+    const response = await axios.post(
+      `${KHALTI_API}/lookup/`,
+      { pidx },
+      { headers: buildKhaltiHeaders() }
+    );
+
+    const paymentData = response.data;
+    console.log("Khalti lookup response:", paymentData);
+
+    // ✅ Verify the order exists in our DB
+    const [purchases] = await db.query(
+      "SELECT purchaseid, totalamount, paymentstatus FROM purchases WHERE purchaseid = ?",
+      [purchase_order_id]
+    );
+
+    if (purchases.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found in database.",
+      });
+    }
+
+    const purchase = purchases[0];
+
+    // ✅ Guard: prevent double processing
+    if (purchase.paymentstatus === "completed") {
+      return res.redirect(
+        `${CLIENT_URL}/payment-success?orderId=${purchase_order_id}`
+      );
+    }
+
+    if (paymentData.status === "Completed") {
+      // ✅ Update purchase record with all payment details
+      await db.query(
+        `UPDATE purchases 
+         SET paymentstatus = 'completed',
+             pidx = ?,
+             paidat = NOW(),
+             paymentgateway = 'khalti'
+         WHERE purchaseid = ?`,
+        [pidx, purchase_order_id]
+      );
+
+      return res.redirect(
+        `${CLIENT_URL}/payment-success?orderId=${purchase_order_id}`
+      );
+
+    } else {
+      // ❌ Payment failed or cancelled
+      await db.query(
+        `UPDATE purchases 
+         SET paymentstatus = 'failed'
+         WHERE purchaseid = ?`,
+        [purchase_order_id]
+      );
+
+      return res.redirect(
+        `${CLIENT_URL}/payment-failed?reason=${encodeURIComponent(
+          paymentData.status || "failed"
+        )}`
+      );
+    }
+
+  } catch (error) {
+    const payload = error?.response?.data || error.message;
+    console.error("Khalti verify error:", payload);
+    return res.status(error?.response?.status || 500).json({
+      success: false,
+      message: payload,
+    });
+  }
+});
+
+module.exports = router;
