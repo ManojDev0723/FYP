@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const db = require("../config/db");
+const { generateCoupons } = require("../controllers/couponController");
 const router = express.Router();
 
 const KHALTI_API = "https://dev.khalti.com/api/v2/epayment";
@@ -152,6 +153,14 @@ router.get("/verify", async (req, res) => {
          WHERE purchaseid = ?`,
         [pidx, purchase_order_id]
       );
+
+      // ✅ Generate Coupons for each item in the order
+      try {
+        await generateCoupons(purchase_order_id);
+      } catch (couponError) {
+        console.error("Coupon generation failed after payment success:", couponError);
+        // Note: Payment is successful, so we still proceed, but log the error
+      }
 
       return res.redirect(
         `${CLIENT_URL}/payment-success?orderId=${purchase_order_id}`

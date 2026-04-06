@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const crypto = require("crypto");
 
 // Helper to get businessid from userid (similar to dealController)
 const getBusinessId = async (userId) => {
@@ -82,5 +83,50 @@ exports.updateCouponStatus = async (req, res) => {
   } catch (error) {
     console.error("Error updating coupon status:", error);
     res.status(500).json({ message: "Server error updating coupon status" });
+  }
+};
+
+// @desc    Generate unique coupons for each item in an order
+// @access  Internal (called after payment verification)
+exports.generateCoupons = async (orderId) => {
+  try {
+    // 1. Fetch order details from purchases joined with deals
+    const query = `
+      SELECT p.userid, p.dealid, p.quantity, d.businessid as merchantid, d.enddate as expiresat
+      FROM purchases p
+      JOIN deals d ON p.dealid = d.dealid
+      WHERE p.purchaseid = ?
+    `;
+    const [orders] = await db.query(query, [orderId]);
+
+    if (orders.length === 0) {
+      throw new Error(`Order #${orderId} not found.`);
+    }
+
+    const order = orders[0];
+    const generatedCodes = [];
+
+    // Helper to generate 10-char alphanumeric code
+    const generateCode = () => crypto.randomBytes(5).toString("hex").toUpperCase();
+
+    // 2. Generate logic (one coupon per quantity unit)
+    for (let i = 0; i < order.quantity; i++) {
+      const couponCode = generateCode();
+
+      await db.query(
+        `INSERT INTO coupons 
+         (purchaseid, couponcode, userid, dealid, merchantid, status, expiresat) 
+         VALUES (?, ?, ?, ?, ?, 'unused', ?)`,
+        [orderId, couponCode, order.userid, order.dealid, order.merchantid, order.expiresat]
+      );
+
+      generatedCodes.push(couponCode);
+    }
+
+    console.log(`Successfully generated ${generatedCodes.length} coupons for order ID: ${orderId}`);
+    return generatedCodes;
+  } catch (error) {
+    console.error("Critical error in generateCoupons:", error);
+    throw error;
   }
 };

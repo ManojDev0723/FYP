@@ -154,3 +154,25 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(500).json({ message: "Server error updating order status" });
   }
 };
+
+// @desc    Get coupons for a specific order
+// @route   GET /api/orders/:id/coupons
+// @access  Private (Customer)
+exports.getOrderCoupons = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const query = `
+      SELECT c.couponcode, c.status, c.expiresat, d.title as dealTitle
+      FROM coupons c
+      JOIN deals d ON c.dealid = d.dealid
+      WHERE c.purchaseid = ? AND c.userid = ?
+    `;
+    const [coupons] = await db.query(query, [id, req.userId]);
+    
+    res.json(coupons);
+  } catch (error) {
+    console.error("Error fetching order coupons:", error);
+    res.status(500).json({ message: "Server error fetching coupons" });
+  }
+};

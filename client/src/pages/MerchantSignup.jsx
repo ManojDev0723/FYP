@@ -28,14 +28,9 @@ function MerchantSignup() {
         "http://localhost:5000/api/auth/merchant-register",
         form
       );
-      
-      // Auto login the merchant
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-      }
 
-      alert("Business Registered Successfully! Welcome to DealHub.");
-      navigate("/");
+      alert("Business Registered Successfully! Please verify your email.");
+      navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`);
     } catch (error) {
       alert(error.response?.data?.message || "Merchant Registration failed");
     } finally {

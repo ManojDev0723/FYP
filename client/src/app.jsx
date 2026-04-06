@@ -25,6 +25,7 @@ import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
 import ProtectedRoute from "./components/ProtectedRoute";
+import OTPVerify from "./pages/OTPVerify";
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/merchant-register" element={<MerchantSignup />} />
+        <Route path="/verify-otp" element={<OTPVerify />} />
         
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={

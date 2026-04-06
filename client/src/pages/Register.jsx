@@ -23,10 +23,10 @@ function Register() {
     setLoading(true);
     try {
       await axios.post("http://localhost:5000/api/auth/register", form);
-      alert("Registration successful");
-      navigate("/");
+      alert("Registration successful. Please verify your email.");
+      navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`);
     } catch (error) {
-      alert("Registration failed");
+      alert(error.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }

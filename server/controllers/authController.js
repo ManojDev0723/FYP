@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("../config/db");
+const { sendOTP } = require("../utils/emailService");
 
 const register = async (req, res) => {
   try {
@@ -24,15 +25,22 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
     // Insert new user
     const [result] = await db.query(
-      "INSERT INTO users (fullname, email, password, phone, role) VALUES (?, ?, ?, ?, ?)",
-      [fullname, email, hashedPassword, phone, 'customer']
+      "INSERT INTO users (fullname, email, password, phone, role, otp, otp_expiry, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [fullname, email, hashedPassword, phone, 'customer', otp, otpExpiry, 0]
     );
 
+    // Send OTP to email
+    await sendOTP(email, otp);
+
     res.status(201).json({
-      message: "User registered successfully",
-      userId: result.insertId,
+      message: "User registered successfully, please verify your email.",
+      email: email, // Returned to inform frontend where to verify
     });
   } catch (error) {
     console.error("Error in register:", error);
@@ -66,10 +74,14 @@ const merchantRegister = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
     // 1. Insert new user
     const [userResult] = await connection.query(
-      "INSERT INTO users (fullname, email, password, phone, role) VALUES (?, ?, ?, ?, ?)",
-      [fullName, email, hashedPassword, phone, 'business']
+      "INSERT INTO users (fullname, email, password, phone, role, otp, otp_expiry, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [fullName, email, hashedPassword, phone, 'business', otp, otpExpiry, 0]
     );
 
     const ownerId = userResult.insertId;
@@ -82,23 +94,12 @@ const merchantRegister = async (req, res) => {
 
     await connection.commit();
 
-    // Optionally generate a JWT to log them in immediately
-    const token = jwt.sign(
-      { userId: ownerId },
-      process.env.JWT_SECRET || "your_jwt_secret_key",
-      { expiresIn: "1d" }
-    );
+    // Send OTP
+    await sendOTP(email, otp);
 
     res.status(201).json({
-      message: "Merchant registered successfully",
-      token,
-      user: {
-        id: ownerId,
-        fullname: fullName,
-        email: email,
-        phone: phone,
-        role: "business",
-      },
+      message: "Merchant registered successfully, please verify your email.",
+      email: email,
     });
   } catch (error) {
     await connection.rollback();
@@ -146,6 +147,11 @@ const login = async (req, res) => {
     }
 
     const user = users[0];
+
+    // Block unverified users
+    if (user.is_verified === 0) {
+      return res.status(403).json({ message: "Please verify your email before logging in", email: user.email, requiresVerification: true });
+    }
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -278,6 +284,90 @@ const adminLogin = async (req, res) => {
   }
 };
 
+const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required" });
+    }
+
+    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = users[0];
+
+    if (user.is_verified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    // Check OTP
+    if (user.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // Check expiry
+    if (new Date() > new Date(user.otp_expiry)) {
+      return res.status(400).json({ message: "OTP has expired" });
+    }
+
+    // Mark as verified
+    await db.query("UPDATE users SET is_verified = 1, otp = NULL, otp_expiry = NULL WHERE email = ?", [email]);
+
+    // Issue JWT like login
+    const token = jwt.sign(
+      { userId: user.userid },
+      process.env.JWT_SECRET || "your_jwt_secret_key",
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      message: "Email verified successfully.",
+      token,
+      user: {
+        id: user.userid,
+        fullname: user.fullname,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error in verifyOTP:", error);
+    res.status(500).json({ message: "Server error during verification" });
+  }
+};
+
+const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+    if (users.length === 0) return res.status(404).json({ message: "User not found" });
+
+    const user = users[0];
+    if (user.is_verified) return res.status(400).json({ message: "Email is already verified" });
+
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const newOtpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await db.query("UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?", [newOtp, newOtpExpiry, email]);
+
+    await sendOTP(email, newOtp);
+
+    res.json({ message: "OTP resent successfully" });
+  } catch (error) {
+    console.error("Error in resendOTP:", error);
+    res.status(500).json({ message: "Server error while resending OTP" });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -285,4 +375,6 @@ module.exports = {
   getMe,
   updateProfile,
   adminLogin,
+  verifyOTP,
+  resendOTP,
 };

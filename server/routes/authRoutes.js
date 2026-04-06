@@ -22,4 +22,8 @@ router.get("/me", protect, authController.getMe);
 // Update user profile (Protected)
 router.put("/profile", protect, authController.updateProfile);
 
+// OTP Verification routes
+router.post("/verify-otp", authController.verifyOTP);
+router.post("/resend-otp", authController.resendOTP);
+
 module.exports = router;

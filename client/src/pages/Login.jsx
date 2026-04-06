@@ -49,7 +49,12 @@ function Login() {
         navigate("/dashboard");
       }
     } catch (error) {
-      alert("Login failed");
+      if (error.response?.data?.requiresVerification) {
+        alert(error.response.data.message);
+        navigate(`/verify-otp?email=${encodeURIComponent(error.response.data.email || form.email)}`);
+      } else {
+        alert(error.response?.data?.message || "Login failed");
+      }
     } finally {
       setLoading(false);
     }
