@@ -26,9 +26,9 @@ exports.getMerchantOrders = async (req, res) => {
         c.couponcode, 
         c.redeemed, 
         c.redeemedat, 
-        p.createdat as purchasedate, 
+        p.purchasedat as purchasedate, 
         p.quantity, 
-        p.totalprice,
+        p.totalamount,
         d.title as dealTitle, 
         d.discountprice,
         u.fullname as customerName,
@@ -42,7 +42,7 @@ exports.getMerchantOrders = async (req, res) => {
       JOIN deals d ON p.dealid = d.dealid
       JOIN users u ON p.userid = u.userid
       WHERE d.businessid = ?
-      ORDER BY p.createdat DESC
+      ORDER BY p.purchasedat DESC
     `;
     const [orders] = await db.query(query, [businessid]);
     res.json(orders);
@@ -163,10 +163,15 @@ exports.getOrderCoupons = async (req, res) => {
     const { id } = req.params;
     
     const query = `
-      SELECT c.couponcode, c.status, c.expiresat, d.title as dealTitle
+      SELECT 
+        c.couponcode, 
+        c.redeemed as status, 
+        d.enddate as expiresat, 
+        d.title as dealTitle
       FROM coupons c
-      JOIN deals d ON c.dealid = d.dealid
-      WHERE c.purchaseid = ? AND c.userid = ?
+      JOIN purchases p ON c.purchaseid = p.purchaseid
+      JOIN deals d ON p.dealid = d.dealid
+      WHERE c.purchaseid = ? AND p.userid = ?
     `;
     const [coupons] = await db.query(query, [id, req.userId]);
     
@@ -174,5 +179,35 @@ exports.getOrderCoupons = async (req, res) => {
   } catch (error) {
     console.error("Error fetching order coupons:", error);
     res.status(500).json({ message: "Server error fetching coupons" });
+  }
+};
+
+// @desc    Get invoice details for an order
+// @route   GET /api/orders/:id/invoice
+// @access  Private (Customer)
+exports.getOrderInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const query = `
+      SELECT 
+        p.purchaseid, p.quantity, p.totalamount, p.paymentstatus, p.paymentmethod, p.purchasedat,
+        d.title as dealTitle, d.discountprice,
+        u.fullname as customerName, u.email as customerEmail
+      FROM purchases p
+      JOIN deals d ON p.dealid = d.dealid
+      JOIN users u ON p.userid = u.userid
+      WHERE p.purchaseid = ? AND p.userid = ?
+    `;
+    const [orders] = await db.query(query, [id, req.userId]);
+    
+    if (orders.length === 0) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.json(orders[0]);
+  } catch (error) {
+    console.error("Error fetching order invoice:", error);
+    res.status(500).json({ message: "Server error fetching invoice" });
   }
 };

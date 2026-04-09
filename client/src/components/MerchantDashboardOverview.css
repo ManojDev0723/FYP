@@ -1,0 +1,536 @@
+/* Overview Container */
+.overview-container {
+  width: 100%;
+}
+
+/* ===== LOADING & ERROR STATES ===== */
+.overview-loading,
+.overview-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  text-align: center;
+}
+
+.overview-loading p,
+.overview-error p {
+  font-size: 16px;
+  color: #718096;
+}
+
+.overview-loading .spinner {
+  animation: spin 1s linear infinite;
+  color: #ff8c42;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.overview-error h2 {
+  color: #dc2626;
+  margin: 0;
+}
+
+.retry-btn {
+  padding: 10px 24px;
+  background: #ff8c42;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: #ff7a1f;
+  transform: translateY(-2px);
+}
+
+/* Section Headers */
+.section-header {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+}
+
+.section-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.section-header p {
+  font-size: 13px;
+  color: #718096;
+  margin: 0;
+}
+
+.view-all {
+  color: #ff8c42;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.view-all:hover {
+  color: #ff7a1f;
+  text-decoration: underline;
+}
+
+/* ===== METRICS SECTION ===== */
+.metrics-section {
+  margin-bottom: 40px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff8c42 0%, #ff7a1f 100%);
+}
+
+.metric-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  background: #fee8d8;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.metric-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.metric-trend.up {
+  color: #10b981;
+  background: #d1fae5;
+}
+
+.metric-trend.down {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+.metric-title {
+  font-size: 13px;
+  color: #718096;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+}
+
+.metric-unit {
+  font-size: 18px;
+  color: #a0aec0;
+  margin-left: 4px;
+}
+
+.metric-period {
+  font-size: 12px;
+  color: #cbd5e0;
+  margin: 0;
+}
+
+/* ===== CHARTS SECTION ===== */
+.charts-section {
+  margin-bottom: 40px;
+}
+
+.chart-wrapper {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+}
+
+.chart-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.chart-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+}
+
+.chart-subtitle {
+  font-size: 13px;
+  color: #a0aec0;
+}
+
+/* Recharts Customization */
+.recharts-surface {
+  overflow: visible !important;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+.recharts-tooltip {
+  outline: none;
+}
+
+/* ===== DEALS & REDEMPTIONS SECTION ===== */
+.deals-redemptions-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 1200px) {
+  .deals-redemptions-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Active Deals Section */
+.active-deals-wrapper,
+.redemptions-wrapper {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+}
+
+.deals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deal-card {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafbfc;
+  transition: all 0.3s ease;
+}
+
+.deal-card:hover {
+  border-color: #ff8c42;
+  background: #fef5f0;
+  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.1);
+}
+
+.deal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.deal-info {
+  flex: 1;
+}
+
+.deal-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+}
+
+.deal-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.deal-stat {
+  color: #718096;
+}
+
+.deal-stat strong {
+  color: #ff8c42;
+  font-weight: 600;
+}
+
+.deal-right {
+  flex-shrink: 0;
+}
+
+.deal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.deal-revenue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff8c42;
+}
+
+.deal-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid #ff8c42;
+  color: #ff8c42;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.deal-action-btn:hover {
+  background: #ff8c42;
+  color: white;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.status-active {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-badge.status-pending {
+  background: #fef08a;
+  color: #b45309;
+}
+
+.status-badge.status-expired {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.status-redeemed {
+  background: #dbeafe;
+  color: #0284c7;
+}
+
+.status-badge.status-inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ===== REDEMPTIONS TABLE ===== */
+.redemptions-table {
+  overflow-x: auto;
+}
+
+.redemptions-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.redemptions-table th {
+  background: #f9fafb;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 2px solid #e5e7eb;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.redemptions-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #4b5563;
+}
+
+.redemptions-table tbody tr {
+  transition: background 0.3s ease;
+}
+
+.redemptions-table tbody tr:hover {
+  background: #fef5f0;
+}
+
+.voucher-code {
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: #ff8c42;
+  font-weight: 500;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deals-redemptions-section {
+    grid-template-columns: 1fr;
+  }
+
+  .traffic-sources {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-card {
+    padding: 16px;
+  }
+
+  .metric-value {
+    font-size: 22px;
+  }
+
+  .chart-wrapper {
+    padding: 16px;
+  }
+
+  .redemptions-table {
+    font-size: 12px;
+  }
+
+  .redemptions-table th,
+  .redemptions-table td {
+    padding: 8px;
+  }
+
+  .deal-footer {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .deal-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-card {
+    padding: 12px;
+  }
+
+  .metric-value {
+    font-size: 20px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .redemptions-table th,
+  .redemptions-table td {
+    padding: 6px 4px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .deal-action-btn {
+    display: none;
+  }
+
+  .metric-card,
+  .chart-wrapper,
+  .active-deals-wrapper,
+  .redemptions-wrapper,
+  .traffic-section {
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}

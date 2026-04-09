@@ -27,6 +27,7 @@ const upload = multer({ storage });
 
 // Public routes
 router.get("/", getDeals);
+router.get("/merchant", protect, getMerchantDeals); // ✅ MUST come before /:id
 router.get("/:id", getDealById);
 
 // Upload route (protected)
@@ -39,7 +40,6 @@ router.post("/upload", protect, upload.single("image"), (req, res) => {
 });
 
 // Protected Merchant routes
-router.get("/merchant", protect, getMerchantDeals);
 router.post("/", protect, createDeal);
 router.put("/:id", protect, updateDeal);
 router.patch("/:id/status", protect, toggleDealStatus);

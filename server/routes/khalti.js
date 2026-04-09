@@ -64,7 +64,10 @@ router.post("/initiate", async (req, res) => {
         purchase_order_name: orderName || `DealHub Order #${orderId}`,
         customer_info: { name, email, phone },
       },
-      { headers: buildKhaltiHeaders() }
+      { 
+        headers: buildKhaltiHeaders(),
+        timeout: 15000 // 15 second timeout
+      }
     );
 
     return res.json({
@@ -74,11 +77,21 @@ router.post("/initiate", async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Khalti initiate error:", error.message);
+    
+    // Handle network timeout errors
+    if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+      return res.status(503).json({
+        success: false,
+        message: "Payment service is temporarily unavailable. Please try again in a moment.",
+        error: "Connection timeout to payment gateway"
+      });
+    }
+    
     const payload = error?.response?.data || error.message;
-    console.error("Khalti initiate error:", payload);
     return res.status(error?.response?.status || 500).json({
       success: false,
-      message: payload,
+      message: payload || "Failed to initiate payment",
     });
   }
 });
@@ -114,7 +127,10 @@ router.get("/verify", async (req, res) => {
     const response = await axios.post(
       `${KHALTI_API}/lookup/`,
       { pidx },
-      { headers: buildKhaltiHeaders() }
+      { 
+        headers: buildKhaltiHeaders(),
+        timeout: 15000 // 15 second timeout
+      }
     );
 
     const paymentData = response.data;
@@ -143,15 +159,12 @@ router.get("/verify", async (req, res) => {
     }
 
     if (paymentData.status === "Completed") {
-      // ✅ Update purchase record with all payment details
+      // ✅ Update purchase record payment status
       await db.query(
         `UPDATE purchases 
-         SET paymentstatus = 'completed',
-             pidx = ?,
-             paidat = NOW(),
-             paymentgateway = 'khalti'
+         SET paymentstatus = 'completed'
          WHERE purchaseid = ?`,
-        [pidx, purchase_order_id]
+        [purchase_order_id]
       );
 
       // ✅ Generate Coupons for each item in the order
@@ -183,11 +196,21 @@ router.get("/verify", async (req, res) => {
     }
 
   } catch (error) {
+    console.error("Khalti verify error:", error.message);
+    
+    // Handle network timeout errors
+    if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+      return res.redirect(
+        `${CLIENT_URL}/payment-failed?reason=${encodeURIComponent(
+          'Payment verification timeout - please contact support'
+        )}`
+      );
+    }
+    
     const payload = error?.response?.data || error.message;
-    console.error("Khalti verify error:", payload);
     return res.status(error?.response?.status || 500).json({
       success: false,
-      message: payload,
+      message: payload || "Payment verification failed",
     });
   }
 });

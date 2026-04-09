@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import MerchantDashboardOverview from "../components/MerchantDashboardOverview";
 import MerchantProfile from "../components/MerchantProfile";
 import DealManagement from "../Components/DealManagement";
 import OrderManagement from "../Components/OrderManagement";
@@ -9,7 +10,7 @@ import "./MerchantDashboard.css";
 const MerchantDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("overview");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -19,6 +20,8 @@ const MerchantDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "overview":
+        return <MerchantDashboardOverview />;
       case "profile":
         return <MerchantProfile />;
       case "deals":
@@ -28,7 +31,7 @@ const MerchantDashboard = () => {
       case "reviews":
         return <ReviewManagement />;
       default:
-        return <MerchantProfile />;
+        return <MerchantDashboardOverview />;
     }
   };
 
@@ -41,6 +44,12 @@ const MerchantDashboard = () => {
         </div>
         <nav className="sidebar-nav">
           <ul>
+            <li
+              className={activeTab === "overview" ? "active" : ""}
+              onClick={() => setActiveTab("overview")}
+            >
+              <i className="fa-solid fa-chart-line"></i> Overview
+            </li>
             <li
               className={activeTab === "profile" ? "active" : ""}
               onClick={() => setActiveTab("profile")}
@@ -78,7 +87,17 @@ const MerchantDashboard = () => {
       <main className="merchant-main-content">
         <header className="merchant-topbar">
           <div className="topbar-welcome">
-            <h3>Welcome to your Dashboard</h3>
+            <h3>
+              {activeTab === "overview"
+                ? "Dashboard Overview"
+                : activeTab === "profile"
+                ? "Business Profile"
+                : activeTab === "deals"
+                ? "Manage Deals"
+                : activeTab === "orders"
+                ? "Orders & Coupons"
+                : "Customer Reviews"}
+            </h3>
           </div>
         </header>
         <section className="merchant-content-area">
