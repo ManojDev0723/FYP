@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import MerchantDashboardOverview from "../components/MerchantDashboardOverview";
+import MerchantAnalytics from "../components/MerchantAnalytics";
 import MerchantProfile from "../components/MerchantProfile";
 import DealManagement from "../Components/DealManagement";
 import OrderManagement from "../Components/OrderManagement";
@@ -22,6 +23,8 @@ const MerchantDashboard = () => {
     switch (activeTab) {
       case "overview":
         return <MerchantDashboardOverview />;
+      case "analytics":
+        return <MerchantAnalytics />;
       case "profile":
         return <MerchantProfile />;
       case "deals":
@@ -49,6 +52,12 @@ const MerchantDashboard = () => {
               onClick={() => setActiveTab("overview")}
             >
               <i className="fa-solid fa-chart-line"></i> Overview
+            </li>
+            <li
+              className={activeTab === "analytics" ? "active" : ""}
+              onClick={() => setActiveTab("analytics")}
+            >
+              <i className="fa-solid fa-chart-pie"></i> Analytics
             </li>
             <li
               className={activeTab === "profile" ? "active" : ""}
@@ -90,6 +99,8 @@ const MerchantDashboard = () => {
             <h3>
               {activeTab === "overview"
                 ? "Dashboard Overview"
+                : activeTab === "analytics"
+                ? "Analytics & Reports"
                 : activeTab === "profile"
                 ? "Business Profile"
                 : activeTab === "deals"

@@ -14,6 +14,8 @@ const Checkout = () => {
   const [orderId, setOrderId] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [loadingOrder, setLoadingOrder] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("khalti"); // Default to Khalti
+  const [loadingStripe, setLoadingStripe] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,6 +84,26 @@ const Checkout = () => {
       setErrorMessage(error.response?.data?.message || error.message || "Unable to create order.");
     } finally {
       setLoadingOrder(false);
+    }
+  };
+
+  const handleStripePayment = async () => {
+    setLoadingStripe(true);
+    setErrorMessage("");
+    try {
+      const response = await axios.post("/api/stripe/create-checkout-session", {
+        orderId: orderId,
+      });
+
+      if (response.data.success && response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        setErrorMessage("Failed to initiate Stripe payment.");
+      }
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || "Stripe payment error.");
+    } finally {
+      setLoadingStripe(false);
     }
   };
 
@@ -201,17 +223,59 @@ const Checkout = () => {
                     {loadingOrder ? "Preparing order..." : "Create Order"}
                   </button>
                 ) : (
-                  <>
+                  <div className="payment-options-container">
                     <div className="order-created-note">
-                      <p>Order #{orderId} created. Click below to complete payment with Khalti.</p>
+                      <p>Order #{orderId} created. Choose your payment method:</p>
                     </div>
-                    <KhaltiPayment
-                      orderId={orderId}
-                      orderName={`DealHub Order #${orderId}`}
-                      customerInfo={customerInfo}
-                      onError={setErrorMessage}
-                    />
-                  </>
+                    
+                    <div className="payment-method-selector">
+                      <label className={`method-card ${paymentMethod === 'khalti' ? 'active' : ''}`}>
+                        <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="khalti" 
+                          checked={paymentMethod === 'khalti'}
+                          onChange={() => setPaymentMethod('khalti')}
+                        />
+                        <div className="method-info">
+                          <span className="method-name">Khalti</span>
+                          <span className="method-desc">Pay with Khalti Wallet or eBanking</span>
+                        </div>
+                      </label>
+
+                      <label className={`method-card ${paymentMethod === 'stripe' ? 'active' : ''}`}>
+                        <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="stripe" 
+                          checked={paymentMethod === 'stripe'}
+                          onChange={() => setPaymentMethod('stripe')}
+                        />
+                        <div className="method-info">
+                          <span className="method-name">Credit/Debit Card (Stripe)</span>
+                          <span className="method-desc">Secure payment via Stripe</span>
+                        </div>
+                      </label>
+                    </div>
+
+                    {paymentMethod === 'khalti' ? (
+                      <KhaltiPayment
+                        orderId={orderId}
+                        orderName={`DealHub Order #${orderId}`}
+                        customerInfo={customerInfo}
+                        onError={setErrorMessage}
+                      />
+                    ) : (
+                      <button 
+                        type="button" 
+                        className="btn-pay-stripe" 
+                        onClick={handleStripePayment}
+                        disabled={loadingStripe}
+                      >
+                        {loadingStripe ? "Redirecting..." : "Pay with Card"}
+                      </button>
+                    )}
+                  </div>
                 )}
               </form>
             </section>

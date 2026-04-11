@@ -9,7 +9,16 @@ const db = require("./config/db");
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      // More robust path matching for Stripe webhook
+      if (req.originalUrl.includes("/api/stripe/webhook")) {
+        req.rawBody = buf;
+      }
+    },
+  })
+);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Routes
@@ -19,6 +28,7 @@ const dealRoutes = require("./routes/dealRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const khaltiRoutes = require("./routes/khalti");
+const stripeRoutes = require("./routes/stripe");
 
 
 app.use("/api/auth", authRoutes);
@@ -27,6 +37,7 @@ app.use("/api/deals", dealRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/khalti", khaltiRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 
 // Test database connection

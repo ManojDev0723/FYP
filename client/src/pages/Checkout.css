@@ -386,3 +386,96 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Payment Method Selector */
+.payment-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.order-created-note {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #166534;
+  font-weight: 600;
+}
+
+.payment-method-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.method-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.method-card.active {
+  border-color: #16a34a;
+  background-color: #f0fdf4;
+}
+
+.method-card input {
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.method-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.method-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #111;
+}
+
+.method-desc {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.btn-pay-stripe {
+  width: 100%;
+  padding: 1.15rem;
+  background-color: #6366f1; /* Stripe-ish blue */
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+}
+
+.btn-pay-stripe:hover {
+  background-color: #4f46e5;
+  transform: translateY(-2px);
+}
+
+.btn-pay-stripe:disabled {
+  background-color: #a5b4fc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .payment-method-selector {
+    grid-template-columns: 1fr;
+  }
+}

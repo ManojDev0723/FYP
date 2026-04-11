@@ -13,33 +13,63 @@ const PaymentSuccess = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let pollInterval;
+    let attempts = 0;
+    const maxAttempts = 5; // Poll 5 times (approx 10 seconds total)
+
     const fetchData = async () => {
       if (!orderId) return;
       try {
         const token = localStorage.getItem("token");
         const headers = { Authorization: `Bearer ${token}` };
         
-        const [couponsRes, invoiceRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/orders/${orderId}/coupons`, { headers }),
-          axios.get(`http://localhost:5000/api/orders/${orderId}/invoice`, { headers }).catch(e => ({ data: null }))
-        ]);
+        // Fetch coupons
+        const couponsRes = await axios.get(`http://localhost:5000/api/orders/${orderId}/coupons`, { headers });
+        const fetchedCoupons = couponsRes.data;
         
-        setCoupons(couponsRes.data);
-        if (invoiceRes && invoiceRes.data) {
-          setInvoice(invoiceRes.data);
+        if (fetchedCoupons.length > 0) {
+          setCoupons(fetchedCoupons);
+          clearInterval(pollInterval);
+          
+          // Only fetch invoice once coupons are ready
+          const invoiceRes = await axios.get(`http://localhost:5000/api/orders/${orderId}/invoice`, { headers }).catch(e => ({ data: null }));
+          if (invoiceRes && invoiceRes.data) {
+            setInvoice(invoiceRes.data);
+          }
+          
+          // Clear cart
+          localStorage.removeItem("cart");
+          window.dispatchEvent(new Event("cartUpdate"));
+          setLoading(false);
+          return true; // Success
         }
-
-        // ✅ Clear the shopping cart after successful payment
-        localStorage.removeItem("cart");
-        window.dispatchEvent(new Event("cartUpdate"));
+        
+        return false; // Not ready yet
       } catch (error) {
         console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
+        return false;
       }
     };
 
-    fetchData();
+    const startPolling = () => {
+      // First immediate check
+      fetchData().then(isReady => {
+        if (!isReady) {
+          pollInterval = setInterval(async () => {
+            attempts++;
+            const isReadyNow = await fetchData();
+            if (isReadyNow || attempts >= maxAttempts) {
+              clearInterval(pollInterval);
+              setLoading(false);
+            }
+          }, 2000); // Check every 2 seconds
+        }
+      });
+    };
+
+    startPolling();
+
+    return () => clearInterval(pollInterval);
   }, [orderId]);
 
 
