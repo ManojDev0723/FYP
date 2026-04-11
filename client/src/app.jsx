@@ -26,6 +26,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OTPVerify from "./pages/OTPVerify";
+import About from "./pages/About";
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/merchant-register" element={<MerchantSignup />} />

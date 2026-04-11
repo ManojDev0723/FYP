@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 const Footer = () => {
@@ -8,7 +9,7 @@ const Footer = () => {
         <div className="footer-grid">
           {/* Brand Column */}
           <div className="footer-brand">
-            <a href="/" className="logo">Deal<span>Hub</span></a>
+            <Link to="/" className="logo">Deal<span>Hub</span></Link>
             <p>
               Discover the best experiences in your city. From luxury stays to fine dining and thrilling adventures, we bring you premium deals at unbeatable prices.
             </p>
@@ -18,10 +19,10 @@ const Footer = () => {
           <div className="footer-section">
             <h4>Categories</h4>
             <ul className="footer-links">
-              <li><a href="/hotels">Hotels & Resorts</a></li>
-              <li><a href="/spas">Spas & Wellness</a></li>
-              <li><a href="/restaurants">Restaurants</a></li>
-              <li><a href="/adventures">Adventures</a></li>
+              <li><Link to="/hotels">Hotels & Resorts</Link></li>
+              <li><Link to="/spa">Spas & Wellness</Link></li>
+              <li><Link to="/food">Restaurants</Link></li>
+              <li><Link to="/adventure">Adventures</Link></li>
             </ul>
           </div>
 
@@ -29,10 +30,10 @@ const Footer = () => {
           <div className="footer-section">
             <h4>Company</h4>
             <ul className="footer-links">
-              <li><a href="/about">About Us</a></li>
-              <li><a href="/careers">Careers</a></li>
-              <li><a href="/blog">Our Blog</a></li>
-              <li><a href="/press">Press Room</a></li>
+              <li><Link to="/about">About Us</Link></li>
+              <li><Link to="/careers">Careers</Link></li>
+              <li><Link to="/blog">Our Blog</Link></li>
+              <li><Link to="/press">Press Room</Link></li>
             </ul>
           </div>
 
@@ -40,10 +41,10 @@ const Footer = () => {
           <div className="footer-section">
             <h4>Support</h4>
             <ul className="footer-links">
-              <li><a href="/faq">Help Center</a></li>
-              <li><a href="/contact">Contact Support</a></li>
-              <li><a href="/terms">Terms of Service</a></li>
-              <li><a href="/privacy">Privacy Policy</a></li>
+              <li><Link to="/faq">Help Center</Link></li>
+              <li><Link to="/contact">Contact Support</Link></li>
+              <li><Link to="/terms">Terms of Service</Link></li>
+              <li><Link to="/privacy">Privacy Policy</Link></li>
             </ul>
           </div>
 
